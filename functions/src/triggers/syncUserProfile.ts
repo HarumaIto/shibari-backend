@@ -29,9 +29,9 @@ export const syncUserProfile = onDocumentUpdated("users/{userId}", async (event)
 
   logger.info(`User profile for ${userId} changed, starting sync.`);
 
-  const newAuthorData = {
-    displayName: after.displayName,
-    photoUrl: after.photoUrl,
+  const updateData = {
+    "author.displayName": after.displayName,
+    "author.photoUrl": after.photoUrl || null,
   };
 
   const batchCommit = async (batch: admin.firestore.WriteBatch) => {
@@ -44,10 +44,10 @@ export const syncUserProfile = onDocumentUpdated("users/{userId}", async (event)
     let writeCount = 0;
 
     // 1. Update user's posts in 'timelines'
-    const timelinesQuery = db.collection("timelines").where("author.userId", "==", userId);
+    const timelinesQuery = db.collection("timelines").where("userId", "==", userId);
     const timelinesSnap = await timelinesQuery.get();
     for (const doc of timelinesSnap.docs) {
-      batch.update(doc.ref, { author: newAuthorData });
+      batch.update(doc.ref, updateData);
       writeCount++;
       if (writeCount >= 500) {
         batch = await batchCommit(batch);
@@ -56,10 +56,10 @@ export const syncUserProfile = onDocumentUpdated("users/{userId}", async (event)
     }
 
     // 2. Update user's comments across all timelines
-    const commentsQuery = db.collectionGroup("comments").where("author.userId", "==", userId);
+    const commentsQuery = db.collectionGroup("comments").where("userId", "==", userId);
     const commentsSnap = await commentsQuery.get();
     for (const doc of commentsSnap.docs) {
-      batch.update(doc.ref, { author: newAuthorData });
+      batch.update(doc.ref, updateData);
       writeCount++;
       if (writeCount >= 500) {
         batch = await batchCommit(batch);
