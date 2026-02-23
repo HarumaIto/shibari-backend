@@ -1,0 +1,35 @@
+name: Functions CI (Lint & Build)
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'functions/**' # functionsディレクトリに変更があった時だけ実行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./functions
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22' # 使っているNodeのバージョンに合わせてください
+          cache: 'npm'
+          cache-dependency-path: functions/package-lock.json
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run Lint
+        run: npm run lint
+
+      - name: Build TypeScript
+        run: npm run build
