@@ -6,22 +6,28 @@ export interface User {
   fcmToken?: string;
   groupId?: string;
   participatingQuestIds?: string[];
+  blockedUserIds: string[];
 }
 
 export interface Author {
-  userId: string;
   displayName: string;
   photoUrl: string;
 }
 
 export interface Timeline {
+  userId: string;
+  questId: string;
+  groupId: string;
   author: Author;
+  mediaUrl: string;
+  mediaType: string;
+  comment: string;
   createdAt: admin.firestore.Timestamp;
-  // other fields...
 }
 
 export interface Comment {
+  userId: string;
   author: Author;
   text: string;
-  // other fields...
+  createdAt: admin.firestore.Timestamp;
 }

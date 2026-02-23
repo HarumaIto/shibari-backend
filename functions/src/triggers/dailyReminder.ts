@@ -35,7 +35,7 @@ export const dailyReminder = onSchedule(
         .get();
       timelinesSnap.forEach((doc) => {
         const timeline = doc.data() as Timeline;
-        submittedUsers.add(timeline.author.userId);
+        submittedUsers.add(timeline.userId);
       });
 
       logger.info(`${submittedUsers.size} users have submitted today.`);

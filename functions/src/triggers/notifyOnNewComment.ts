@@ -21,7 +21,7 @@ export const notifyOnNewComment = onDocumentCreated(
       return;
     }
 
-    const commentAuthorId = commentData.author.userId;
+    const commentAuthorId = commentData.userId;
 
     try {
       // Get the parent timeline post
@@ -33,7 +33,7 @@ export const notifyOnNewComment = onDocumentCreated(
         return;
       }
 
-      const postAuthorId = timelineData.author.userId;
+      const postAuthorId = timelineData.userId;
 
       // Do not send notification if the author comments on their own post
       if (commentAuthorId === postAuthorId) {
