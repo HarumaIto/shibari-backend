@@ -7,7 +7,7 @@ export interface User {
   groupId?: string;
   participatingQuestIds?: string[];
   blockedUserIds: string[];
-  isDeleted: bool;
+  isDeleted: boolean;
 }
 
 export interface Author {
