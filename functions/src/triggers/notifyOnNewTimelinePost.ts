@@ -60,6 +60,22 @@ export const notifyOnNewTimelinePost = onDocumentCreated(
       logger.info(
         `Sent ${response.successCount} notifications for group ${groupId}.`
       );
+      if (response.failureCount > 0) {
+        logger.warn(
+          `Failed to send ${response.failureCount} notifications for group ${groupId}.`
+        );
+        const failed = response.responses
+          .map((resp, index) => ({ resp, index }))
+          .filter(({ resp }) => !resp.success);
+        failed.forEach(({ resp, index }) => {
+          const token = tokens[index];
+          const errorCode = resp.error?.code ?? "unknown";
+          const errorMessage = resp.error?.message ?? "No error message provided";
+          logger.warn(
+            `Notification to token ${token} failed with error ${errorCode}: ${errorMessage}`
+          );
+        });
+      }
     } catch (error) {
       logger.error(`Error sending timeline notification for groupId ${groupId}:`, error);
     }
