@@ -25,7 +25,13 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
   if (after.isDeleted === true && before.isDeleted !== true) {
     logger.info(`User ${userId} marked for deletion. Starting deletion process.`);
     try {
-      // 1. Delete user's profile photo from Storage if it exists and is not an external URL
+      // 1. Delete the user from Firebase Authentication first.
+      // If this fails, the subsequent irreversible cleanup steps are skipped,
+      // keeping the system in a consistent state.
+      await admin.auth().deleteUser(userId);
+      logger.info(`Successfully deleted user ${userId} from Firebase Auth.`);
+
+      // 2. Delete user's profile photo from Storage if it exists and is not an external URL
       const photoUrl = before.photoUrl;
       if (photoUrl && photoUrl.includes("firebasestorage.googleapis.com")) {
         try {
@@ -45,7 +51,7 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
         logger.info(`Skipping Storage image deletion for user ${userId} as it's an external URL or not found.`);
       }
 
-      // 2. Remove user from any groups they are a member of
+      // 3. Remove user from any groups they are a member of
       const groupsSnapshot = await db.collection("groups")
         .where("members", "array-contains", userId).get();
 
@@ -57,10 +63,6 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
       });
       await batch.commit();
       logger.info(`Successfully removed user ${userId} from groups.`);
-
-      // 3. Delete the user from Firebase Authentication
-      await admin.auth().deleteUser(userId);
-      logger.info(`Successfully deleted user ${userId} from Firebase Auth.`);
     } catch (error) {
       logger.error(`Error during deletion process for user ${userId}:`, error);
     }
