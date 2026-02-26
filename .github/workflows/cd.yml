@@ -31,9 +31,6 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
       - name: Deploy to Firebase Functions
         uses: w9jds/firebase-action@v11.31.0
         with: 
