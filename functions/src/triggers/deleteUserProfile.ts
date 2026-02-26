@@ -52,7 +52,7 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
       const batch = db.batch();
       groupsSnapshot.forEach((doc) => {
         batch.update(doc.ref, {
-          members: admin.firestore.FieldValue.arrayRemove(userId)
+          members: admin.firestore.FieldValue.arrayRemove(userId),
         });
       });
       await batch.commit();
@@ -61,7 +61,6 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
       // 3. Delete the user from Firebase Authentication
       await admin.auth().deleteUser(userId);
       logger.info(`Successfully deleted user ${userId} from Firebase Auth.`);
-
     } catch (error) {
       logger.error(`Error during deletion process for user ${userId}:`, error);
     }
