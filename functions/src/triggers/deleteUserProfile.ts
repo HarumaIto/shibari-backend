@@ -29,11 +29,15 @@ export const deleteUserProfile = onDocumentUpdated("users/{userId}", async (even
       const photoUrl = before.photoUrl;
       if (photoUrl && photoUrl.includes("firebasestorage.googleapis.com")) {
         try {
-          // Regex to decode and extract file path (full path) from URL
-          // Example: .../o/profile_images%2Fuser123.jpg?alt=... -> profile_images/user123.jpg
-          const match = photoUrl.match(/\/o\/(.+?)\?/);
+          const url = new URL(photoUrl);
+          const pathname = url.pathname;
+          const match = pathname.match(/\/o\/(.+?)\?/);
           if (match && match[1]) {
             const filePath = decodeURIComponent(match[1]);
+            if (!filePath || ~filePath.startsWith("profiles")) {
+              logger.warn(`Skipping Storage image deletion for user ${userId}: unexpected file path "${filePath}".`);
+              return;
+            }
             const bucket = storage.bucket(); // Use default bucket
             await bucket.file(filePath).delete();
             logger.info(`Successfully deleted Storage image for user ${userId}: ${filePath}`);
