@@ -31,8 +31,12 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
-      - name: Install Firebase CLI
-        run: npm install -g firebase-tools
-
       - name: Deploy to Firebase Functions
-        run: firebase deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID }} --token ${{ secrets.FIREBASE_TOKEN }}
+        uses: w9jds/firebase-action@v11.31.0
+        with: 
+          args: deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID }}
+        env: 
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+
+      - name: Deploy Complete
+        run: echo "Functions deploy completed successfully!"
