@@ -11,4 +11,4 @@ export const getStartOfWeek = (): Date => {
   startOfWeek.setDate(diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
   return startOfWeek;
-}
+};

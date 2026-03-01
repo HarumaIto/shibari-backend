@@ -3,4 +3,4 @@ export const getJstNow = (): Date => {
   const jstOffset = 9 * 60;
   const localOffset = now.getTimezoneOffset();
   return new Date(now.getTime() + (jstOffset + localOffset) * 60 * 1000);
-}
+};

@@ -13,4 +13,4 @@ export const getTargetFrequency = (): string[] => {
   }
 
   return targetFrequencies;
-}
+};
