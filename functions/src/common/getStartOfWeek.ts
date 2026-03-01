@@ -1,4 +1,6 @@
-export const getStartOfWeek = async (): Date => {
+import { getJstNow } from './getJstNow';
+
+export const getStartOfWeek = (): Date => {
   const jstNow = getJstNow();
   const startOfWeek = new Date(jstNow.getTime());
 

@@ -1,4 +1,4 @@
-export const getJstNow = async (): Date => {
+export const getJstNow = (): Date => {
   const now = new Date();
   const jstOffset = 9 * 60;
   const localOffset = now.getTimezoneOffset();

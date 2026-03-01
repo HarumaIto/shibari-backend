@@ -1,4 +1,6 @@
-export const getStartOfMonth = async (): Date => {
+import { getJstNow } from './getJstNow';
+
+export const getStartOfMonth = (): Date => {
   const jstNow = getJstNow();
 
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

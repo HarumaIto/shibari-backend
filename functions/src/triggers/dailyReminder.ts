@@ -2,7 +2,10 @@ import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
 import { User, Timeline } from "../common/types";
-
+import { getJstNow } from '../common/getJstNow';
+import { getTargetFrequency } from '../common/getTargetFrequency';
+import { getStartOfWeek } from '../common/getStartOfWeek';
+import { getStartOfMonth } from '../common/getStartOfMonth';
 const db = admin.firestore();
 const messaging = admin.messaging();
 
@@ -23,7 +26,7 @@ export const dailyReminder = onSchedule(
 
       questsSnapshot.forEach(doc => {
         const data = doc.data();
-        questFreqMap.set(doc.id, data.freqency);
+        questFreqMap.set(doc.id, data.frequency);
       });
 
       const compeletedSet = new Set<string>();
