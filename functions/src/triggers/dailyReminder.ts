@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { User, Timeline, Quest } from "../common/types";
+import { Timeline, Quest } from "../common/types";
 import { getJstNow } from "../common/getJstNow";
 import { getTargetFrequency } from "../common/getTargetFrequency";
 import { getStartOfWeek } from "../common/getStartOfWeek";
@@ -65,7 +65,7 @@ export const dailyReminder = onSchedule(
       const fcmTokensToNotify: string[] = [];
 
       for await (const userDoc of usersStream) {
-        const user = userDoc.data() as User;
+        const user = userDoc.data();
         if (!user.participatingQuestIds || user.participatingQuestIds.length === 0) continue;
 
         let shouldNotify = false;
