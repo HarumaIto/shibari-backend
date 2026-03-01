@@ -9,7 +9,11 @@ export const getTargetFrequency = (): string[] => {
     targetFrequencies.push("WEEKLY");
   }
 
-  const isEndOfMonth = new Date(jstNow.getFullYear(), jstNow.getMonth() + 1, 0).getDate() === jstNow.getDate();
+  const isEndOfMonth = new Date(
+    jstNow.getFullYear(),
+    jstNow.getMonth() + 1,
+    0
+  ).getDate() === jstNow.getDate();
   if (isEndOfMonth) {
     targetFrequencies.push("MONTHLY");
   }
