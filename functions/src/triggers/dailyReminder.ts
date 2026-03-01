@@ -60,7 +60,7 @@ export const dailyReminder = onSchedule(
         monthlyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
-      const usersStream = db.collection("users").stream();
+      const usersStream = db.collection("users").stream() as AsyncIterable<admin.firestore.QueryDocumentSnapshot>;
 
       const fcmTokensToNotify: string[] = [];
 
