@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { User, Timeline, Quest } from "../common/types.ts";
+import { User, Timeline, Quest } from "../common/types";
 import { getJstNow } from "../common/getJstNow";
 import { getTargetFrequency } from "../common/getTargetFrequency";
 import { getStartOfWeek } from "../common/getStartOfWeek";
