@@ -1,3 +1,5 @@
+import { jstNow } from "./getJstNow";
+
 export const getTargetFrequency = (): string[] => {
   const jstNow = getJstNow();
   const targetFrequencies = ["DAILY"];

@@ -1,4 +1,4 @@
-import { getJstNow } from './getJstNow';
+import { getJstNow } from "./getJstNow";
 
 export const getStartOfMonth = (): Date => {
   const jstNow = getJstNow();
