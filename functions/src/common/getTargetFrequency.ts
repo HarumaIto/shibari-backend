@@ -1,4 +1,4 @@
-import { jstNow } from "./getJstNow";
+import { getJstNow } from "./getJstNow";
 
 export const getTargetFrequency = (): string[] => {
   const jstNow = getJstNow();
