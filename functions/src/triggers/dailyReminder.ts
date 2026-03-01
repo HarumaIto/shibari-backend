@@ -1,6 +1,7 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
+import { User, Timeline, Quest } from "../common/types.ts";
 import { getJstNow } from "../common/getJstNow";
 import { getTargetFrequency } from "../common/getTargetFrequency";
 import { getStartOfWeek } from "../common/getStartOfWeek";
@@ -24,7 +25,7 @@ export const dailyReminder = onSchedule(
       const questFreqMap = new Map<string, string>();
 
       questsSnapshot.forEach((doc) => {
-        const data = doc.data();
+        const data = doc.data() as Quest;
         questFreqMap.set(doc.id, data.frequency);
       });
 
@@ -35,10 +36,10 @@ export const dailyReminder = onSchedule(
       startOfDay.setHours(0, 0, 0, 0);
       const dailyPosts = await db.collection("timelines")
         .where("createdAt", ">=", startOfDay)
-        .get();
+        .get() as Timeline;
 
       dailyPosts.forEach((doc) => {
-        const data = doc.data();
+        const data = doc.data() as Timeline;
         // 誰がどのクエストを達成したかを記録
         completedSet.add(`${data.userId}_${data.questId}`);
       });
@@ -47,7 +48,7 @@ export const dailyReminder = onSchedule(
         const startOfWeek = getStartOfWeek();
         const weeklyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfWeek)
-          .get();
+          .get() as Timeline;
         weeklyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
@@ -55,7 +56,7 @@ export const dailyReminder = onSchedule(
         const startOfMonth = getStartOfMonth();
         const monthlyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfMonth)
-          .get();
+          .get() as Timeline;
         monthlyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
@@ -64,7 +65,7 @@ export const dailyReminder = onSchedule(
       const fcmTokensToNotify: string[] = [];
 
       for await (const userDoc of usersStream) {
-        const user = userDoc.data();
+        const user = userDoc.data() as User;
         if (!user.participatingQuestIds || user.participatingQuestIds.length === 0) continue;
 
         let shouldNotify = false;
