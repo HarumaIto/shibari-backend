@@ -36,7 +36,7 @@ export const dailyReminder = onSchedule(
       startOfDay.setHours(0, 0, 0, 0);
       const dailyPosts = await db.collection("timelines")
         .where("createdAt", ">=", startOfDay)
-        .get() as Timeline;
+        .get();
 
       dailyPosts.forEach((doc) => {
         const data = doc.data() as Timeline;
@@ -48,7 +48,7 @@ export const dailyReminder = onSchedule(
         const startOfWeek = getStartOfWeek();
         const weeklyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfWeek)
-          .get() as Timeline;
+          .get();
         weeklyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
@@ -56,7 +56,7 @@ export const dailyReminder = onSchedule(
         const startOfMonth = getStartOfMonth();
         const monthlyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfMonth)
-          .get() as Timeline;
+          .get();
         monthlyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
