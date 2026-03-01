@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { User, Timeline } from "../common/types";
 import { getJstNow } from "../common/getJstNow";
 import { getTargetFrequency } from "../common/getTargetFrequency";
 import { getStartOfWeek } from "../common/getStartOfWeek";
@@ -24,24 +23,24 @@ export const dailyReminder = onSchedule(
       const questsSnapshot = await db.collection("quests").get();
       const questFreqMap = new Map<string, string>();
 
-      questsSnapshot.forEach(doc => {
+      questsSnapshot.forEach((doc) => {
         const data = doc.data();
         questFreqMap.set(doc.id, data.frequency);
       });
 
-      const compeletedSet = new Set<string>();
+      const completedSet = new Set<string>();
 
-      const jstNow = getJstNow(); 
+      const jstNow = getJstNow();
       const startOfDay = new Date(jstNow);
       startOfDay.setHours(0, 0, 0, 0);
       const dailyPosts = await db.collection("timelines")
         .where("createdAt", ">=", startOfDay)
         .get();
 
-      dailyPosts.forEach(doc => {
+      dailyPosts.forEach((doc) => {
         const data = doc.data();
         // 誰がどのクエストを達成したかを記録
-        completedSet.add(`${data.userId}_${data.questId}`); 
+        completedSet.add(`${data.userId}_${data.questId}`);
       });
 
       if (targetFrequencies.includes("WEEKLY")) {
@@ -49,7 +48,7 @@ export const dailyReminder = onSchedule(
         const weeklyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfWeek)
           .get();
-        weeklyPosts.forEach(doc => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
+        weeklyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
       if (targetFrequencies.includes("MONTHLY")) {
@@ -57,7 +56,7 @@ export const dailyReminder = onSchedule(
         const monthlyPosts = await db.collection("timelines")
           .where("createdAt", ">=", startOfMonth)
           .get();
-        monthlyPosts.forEach(doc => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
+        monthlyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
       }
 
       const usersStream = db.collection("users").stream();
@@ -72,22 +71,22 @@ export const dailyReminder = onSchedule(
 
         // 参加しているクエストを1つずつチェック
         for (const questId of user.participatingQuestIds) {
-            const freq = questFreqMap.get(questId);
-            
-            // そのクエストが今日の通知対象Frequencyでなければ無視
-            if (!freq || !targetFrequencies.includes(freq)) continue;
+          const freq = questFreqMap.get(questId);
 
-            // 期間内に該当のクエストの投稿（達成）がなければ、通知フラグを立ててループを抜ける
-            if (!completedSet.has(`${user.id}_${questId}`)) {
-                shouldNotify = true;
-                break; // 1つでも未達成があれば通知するので、以降のチェックは不要
-            }
+          // そのクエストが今日の通知対象Frequencyでなければ無視
+          if (!freq || !targetFrequencies.includes(freq)) continue;
+
+          // 期間内に該当のクエストの投稿（達成）がなければ、通知フラグを立ててループを抜ける
+          if (!completedSet.has(`${user.id}_${questId}`)) {
+            shouldNotify = true;
+            break; // 1つでも未達成があれば通知するので、以降のチェックは不要
+          }
         }
 
         if (shouldNotify && user.fcmToken) {
-            fcmTokensToNotify.push(user.fcmToken);
+          fcmTokensToNotify.push(user.fcmToken);
         }
-      } 
+      }
 
       if (fcmTokensToNotify.length > 0) {
         logger.info(`Sending reminders to ${fcmTokensToNotify.length} users.`);
