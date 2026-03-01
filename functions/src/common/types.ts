@@ -32,3 +32,12 @@ export interface Comment {
   text: string;
   createdAt: admin.firestore.Timestamp;
 }
+
+export interface Quest {
+  description: string;
+  frequency: string;
+  groupId: string;
+  threshold: number;
+  title: string;
+  type: string;
+}

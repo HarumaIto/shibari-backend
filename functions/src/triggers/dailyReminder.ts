@@ -1,8 +1,11 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { User, Timeline } from "../common/types";
-
+import { Timeline, Quest } from "../common/types";
+import { getJstNow } from "../common/getJstNow";
+import { getTargetFrequency } from "../common/getTargetFrequency";
+import { getStartOfWeek } from "../common/getStartOfWeek";
+import { getStartOfMonth } from "../common/getStartOfMonth";
 const db = admin.firestore();
 const messaging = admin.messaging();
 
@@ -16,58 +19,84 @@ export const dailyReminder = onSchedule(
     logger.info("Executing daily reminder function.");
 
     try {
-      // 1. Calculate the start of the day in JST
-      const now = new Date();
-      const jstOffset = 9 * 60; // JST is UTC+9
-      const localOffset = now.getTimezoneOffset();
-      const jstNow = new Date(now.getTime() + (jstOffset + localOffset) * 60 * 1000);
+      const targetFrequencies = getTargetFrequency();
 
-      const startOfTodayJST = new Date(jstNow);
-      startOfTodayJST.setHours(0, 0, 0, 0);
+      const questsSnapshot = await db.collection("quests").get();
+      const questFreqMap = new Map<string, string>();
 
-      const startOfTodayTimestamp = admin.firestore.Timestamp.fromDate(startOfTodayJST);
+      questsSnapshot.forEach((doc) => {
+        const data = doc.data() as Quest;
+        questFreqMap.set(doc.id, data.frequency);
+      });
 
-      // 2. Get all user IDs who have posted today
-      const submittedUsers = new Set<string>();
-      const timelinesSnap = await db
-        .collection("timelines")
-        .where("createdAt", ">=", startOfTodayTimestamp)
+      const completedSet = new Set<string>();
+
+      const jstNow = getJstNow();
+      const startOfDay = new Date(jstNow);
+      startOfDay.setHours(0, 0, 0, 0);
+      const dailyPosts = await db.collection("timelines")
+        .where("createdAt", ">=", startOfDay)
         .get();
-      timelinesSnap.forEach((doc) => {
-        const timeline = doc.data() as Timeline;
-        submittedUsers.add(timeline.userId);
+
+      dailyPosts.forEach((doc) => {
+        const data = doc.data() as Timeline;
+        // 誰がどのクエストを達成したかを記録
+        completedSet.add(`${data.userId}_${data.questId}`);
       });
 
-      logger.info(`${submittedUsers.size} users have submitted today.`);
+      if (targetFrequencies.includes("WEEKLY")) {
+        const startOfWeek = getStartOfWeek();
+        const weeklyPosts = await db.collection("timelines")
+          .where("createdAt", ">=", startOfWeek)
+          .get();
+        weeklyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
+      }
 
-      // 3. Get all eligible users for notification
-      const usersSnap = await db.collection("users").get();
-      const notificationTokens: string[] = [];
+      if (targetFrequencies.includes("MONTHLY")) {
+        const startOfMonth = getStartOfMonth();
+        const monthlyPosts = await db.collection("timelines")
+          .where("createdAt", ">=", startOfMonth)
+          .get();
+        monthlyPosts.forEach((doc) => completedSet.add(`${doc.data().userId}_${doc.data().questId}`));
+      }
 
-      usersSnap.forEach((doc) => {
-        const user = doc.data() as User;
-        const userId = doc.id;
+      const usersStream = db.collection("users").stream() as AsyncIterable<admin.firestore.QueryDocumentSnapshot>;
 
-        const isEligible =
-          user.fcmToken &&
-          user.groupId &&
-          user.participatingQuestIds &&
-          user.participatingQuestIds.length > 0;
+      const fcmTokensToNotify: string[] = [];
 
-        if (isEligible && !submittedUsers.has(userId) && user.fcmToken) {
-          notificationTokens.push(user.fcmToken);
+      for await (const userDoc of usersStream) {
+        const user = userDoc.data();
+        if (!user.participatingQuestIds || user.participatingQuestIds.length === 0) continue;
+
+        let shouldNotify = false;
+
+        // 参加しているクエストを1つずつチェック
+        for (const questId of user.participatingQuestIds) {
+          const freq = questFreqMap.get(questId);
+
+          // そのクエストが今日の通知対象Frequencyでなければ無視
+          if (!freq || !targetFrequencies.includes(freq)) continue;
+
+          // 期間内に該当のクエストの投稿（達成）がなければ、通知フラグを立ててループを抜ける
+          if (!completedSet.has(`${user.id}_${questId}`)) {
+            shouldNotify = true;
+            break; // 1つでも未達成があれば通知するので、以降のチェックは不要
+          }
         }
-      });
 
-      // 4. Send notifications
-      if (notificationTokens.length > 0) {
-        logger.info(`Sending reminders to ${notificationTokens.length} users.`);
+        if (shouldNotify && user.fcmToken) {
+          fcmTokensToNotify.push(user.fcmToken);
+        }
+      }
+
+      if (fcmTokensToNotify.length > 0) {
+        logger.info(`Sending reminders to ${fcmTokensToNotify.length} users.`);
         const message = {
           notification: {
             title: "🚨 本日のノルマ未達成",
             body: "証拠の提出がまだ確認されていません。チームメンバーが監視しています！",
           },
-          tokens: notificationTokens,
+          tokens: fcmTokensToNotify,
         };
 
         const response = await messaging.sendEachForMulticast(message);
