@@ -7,6 +7,9 @@ import { deleteUserProfile } from "./triggers/deleteUserProfile";
 import { notifyOnNewComment } from "./triggers/notifyOnNewComment";
 import { dailyReminder } from "./triggers/dailyReminder";
 import { notifyOnNewTimelinePost } from "./triggers/notifyOnNewTimelinePost";
+import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
+import { notifyQuestApproved } from "./triggers/notifyQuestApproved";
+import { notifyQuestRejected } from "./triggers/notifyQuestRejected";
 
 export {
   syncUserProfile,
@@ -14,4 +17,7 @@ export {
   notifyOnNewComment,
   dailyReminder,
   notifyOnNewTimelinePost,
+  notifyMemberJoined,
+  notifyQuestApproved,
+  notifyQuestRejected,
 };

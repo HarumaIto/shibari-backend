@@ -23,6 +23,8 @@ export interface Timeline {
   mediaUrl: string;
   mediaType: string;
   comment: string;
+  status?: "PENDING" | "APPROVED" | "REJECTED";
+  processedBy?: string; // The user ID who approved/rejected the post
   createdAt: admin.firestore.Timestamp;
 }
 
