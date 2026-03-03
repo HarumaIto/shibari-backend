@@ -41,3 +41,22 @@ export interface Quest {
   title: string;
   type: string;
 }
+
+export type NotificationType =
+  | "MEMBER_JOINED"
+  | "QUEST_POSTED"
+  | "COMMENT_ADDED"
+  | "QUEST_REMINDER"
+  | "QUEST_APPROVED"
+  | "QUEST_REJECTED";
+
+export interface AppNotification {
+  id: string; // ドキュメントIDと同じ
+  type: NotificationType;
+  title: string;
+  body: string;
+  senderId?: string; // アクションを起こしたユーザーID
+  targetId?: string; // 遷移先ID (groupId, postId, questIdなど)
+  isRead: boolean; // 初期値は false
+  createdAt: admin.firestore.FieldValue; // サーバータイムスタンプ
+}
