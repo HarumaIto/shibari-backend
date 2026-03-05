@@ -29,8 +29,8 @@ export const notifyQuestRejected = onDocumentUpdated(
 
       // 誰が却下したか（votesを見て、直近で"REJECT"にしたユーザーを探す）
       let rejectorId: string | undefined;
-      const beforeVotes = before.votes || {};
-      const afterVotes = after.votes || {};
+      const beforeVotes = (before.votes ?? {}) as Record<string, string>;
+      const afterVotes = (after.votes ?? {}) as Record<string, string>;
 
       for (const [uid, vote] of Object.entries(afterVotes)) {
         if (vote === "REJECT" && beforeVotes[uid] !== "REJECT") {
