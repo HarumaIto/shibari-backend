@@ -24,7 +24,7 @@ export interface Timeline {
   mediaType: string;
   comment: string;
   status?: "PENDING" | "APPROVED" | "REJECTED";
-  processedBy?: string; // The user ID who approved/rejected the post
+  votes?: Record<string, "APPROVED" | "REJECTED">; // key: uid, value: status
   createdAt: admin.firestore.Timestamp;
 }
 

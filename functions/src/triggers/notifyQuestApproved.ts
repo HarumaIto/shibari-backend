@@ -26,7 +26,18 @@ export const notifyQuestApproved = onDocumentUpdated(
     // Check if status changed from something else to 'APPROVED'
     if (after.status === "APPROVED" && before.status !== "APPROVED") {
       const targetUserId = after.userId; // The original author of the post
-      const approverId = after.processedBy; // Optional: whoever approved it
+
+      // 誰が承認したか（votesを見て、直近で"APPROVED"にしたユーザーを探す）
+      let approverId: string | undefined;
+      const beforeVotes = before.votes || {};
+      const afterVotes = after.votes || {};
+
+      for (const [uid, vote] of Object.entries(afterVotes)) {
+        if (vote === "APPROVED" && beforeVotes[uid] !== "APPROVED") {
+          approverId = uid;
+          break; // 最初に見つかった承認者を対象とする
+        }
+      }
 
       logger.info(`Post ${postId} approved. Sending notification to user ${targetUserId}.`);
 

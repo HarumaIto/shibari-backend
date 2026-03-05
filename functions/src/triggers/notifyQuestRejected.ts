@@ -26,7 +26,18 @@ export const notifyQuestRejected = onDocumentUpdated(
     // Check if status changed from something else to 'REJECTED'
     if (after.status === "REJECTED" && before.status !== "REJECTED") {
       const targetUserId = after.userId; // The original author of the post
-      const rejectorId = after.processedBy; // Optional: whoever rejected it
+
+      // 誰が却下したか（votesを見て、直近で"REJECTED"にしたユーザーを探す）
+      let rejectorId: string | undefined;
+      const beforeVotes = before.votes || {};
+      const afterVotes = after.votes || {};
+
+      for (const [uid, vote] of Object.entries(afterVotes)) {
+        if (vote === "REJECTED" && beforeVotes[uid] !== "REJECTED") {
+          rejectorId = uid;
+          break; // 最初に見つかった却下者を対象とする
+        }
+      }
 
       logger.info(`Post ${postId} rejected. Sending notification to user ${targetUserId}.`);
 
