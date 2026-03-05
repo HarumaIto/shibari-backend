@@ -60,7 +60,7 @@ export interface AppNotification {
   senderId?: string; // アクションを起こしたユーザーID
   targetId?: string; // 遷移先ID (groupId, postId, questIdなど)
   isRead: boolean; // 初期値は false
-  createdAt: admin.firestore.FieldValue; // サーバータイムスタンプ
+  createdAt: admin.firestore.FieldValue | admin.firestore.Timestamp; // サーバータイムスタンプ
 }
 
 export interface Group {
