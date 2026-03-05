@@ -11,6 +11,8 @@ import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
 import { notifyQuestApproved } from "./triggers/notifyQuestApproved";
 import { notifyQuestRejected } from "./triggers/notifyQuestRejected";
 
+import { markNotificationAsRead } from "./callable/markNotificationAsRead";
+
 export {
   syncUserProfile,
   deleteUserProfile,
@@ -20,4 +22,5 @@ export {
   notifyMemberJoined,
   notifyQuestApproved,
   notifyQuestRejected,
+  markNotificationAsRead,
 };
