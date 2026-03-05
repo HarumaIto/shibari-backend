@@ -1,5 +1,6 @@
 import * as admin from "firebase-admin";
 import { onCall, HttpsError } from "firebase-functions/v2/https";
+import * as logger from "firebase-functions/logger";
 
 export const markNotificationAsRead = onCall(async (request) => {
   // 1. 認証チェック
@@ -49,7 +50,7 @@ export const markNotificationAsRead = onCall(async (request) => {
     }
 
     // その他のエラー
-    console.error("Error marking notification as read:", error);
+    logger.error("Error marking notification as read:", error);
     throw new HttpsError(
       "internal",
       "An error occurred while updating the notification."
