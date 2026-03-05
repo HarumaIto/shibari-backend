@@ -8,8 +8,7 @@ import { notifyOnNewComment } from "./triggers/notifyOnNewComment";
 import { dailyReminder } from "./triggers/dailyReminder";
 import { notifyOnNewTimelinePost } from "./triggers/notifyOnNewTimelinePost";
 import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
-import { notifyQuestApproved } from "./triggers/notifyQuestApproved";
-import { notifyQuestRejected } from "./triggers/notifyQuestRejected";
+import { updateTimelineStatus } from "./triggers/updateTimelineStatus";
 import { markNotificationAsRead } from "./callable/markNotificationAsRead";
 
 export {
@@ -19,7 +18,6 @@ export {
   dailyReminder,
   notifyOnNewTimelinePost,
   notifyMemberJoined,
-  notifyQuestApproved,
-  notifyQuestRejected,
+  updateTimelineStatus,
   markNotificationAsRead,
 };

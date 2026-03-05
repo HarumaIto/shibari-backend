@@ -24,6 +24,8 @@ export interface Timeline {
   mediaType: string;
   comment: string;
   status?: "PENDING" | "APPROVE" | "REJECT";
+  approvalCount?: number;
+  rejectCount?: number;
   votes?: Record<string, "APPROVE" | "REJECT">; // key: uid, value: status
   createdAt: admin.firestore.Timestamp;
 }
