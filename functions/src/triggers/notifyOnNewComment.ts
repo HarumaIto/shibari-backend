@@ -2,9 +2,9 @@ import * as admin from "firebase-admin";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import { User, Timeline, Comment } from "../common/types";
+import { sendAndSaveNotification } from "../common/sendAndSaveNotification";
 
 const db = admin.firestore();
-const messaging = admin.messaging();
 
 /**
  * Function 2: Send a push notification when a new comment is posted.
@@ -45,20 +45,17 @@ export const notifyOnNewComment = onDocumentCreated(
       const userDoc = await db.collection("users").doc(postAuthorId).get();
       const userData = userDoc.data() as User | undefined;
 
-      if (userData?.fcmToken) {
-        const message: admin.messaging.Message = {
-          token: userData.fcmToken,
-          notification: {
-            title: "あなたの投稿にコメントがつきました！",
-            body: commentData.text,
-          },
-        };
+      await sendAndSaveNotification({
+        targetUserId: postAuthorId,
+        fcmToken: userData?.fcmToken,
+        type: "COMMENT_ADDED",
+        title: "あなたの投稿にコメントがつきました！",
+        body: commentData.text,
+        senderId: commentAuthorId,
+        targetId: postId,
+      });
 
-        await messaging.send(message);
-        logger.info(`Notification sent to user ${postAuthorId}.`);
-      } else {
-        logger.info(`User ${postAuthorId} has no FCM token, no notification sent.`);
-      }
+      logger.info(`COMMENT_ADDED notification sent to user ${postAuthorId}.`);
     } catch (error) {
       logger.error(`Error sending comment notification for post ${postId}:`, error);
     }

@@ -2,9 +2,9 @@ import * as admin from "firebase-admin";
 import { onDocumentCreated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
 import { User, Timeline } from "../common/types";
+import { sendAndSaveNotification } from "../common/sendAndSaveNotification";
 
 const db = admin.firestore();
-const messaging = admin.messaging();
 
 /**
  * Triggered when a new timeline post is created.
@@ -14,6 +14,7 @@ export const notifyOnNewTimelinePost = onDocumentCreated(
   "timelines/{postId}",
   async (event) => {
     const timelineData = event.data?.data() as Timeline | undefined;
+    const postId = event.params.postId;
 
     if (!timelineData) {
       logger.info("Timeline data is missing, exiting.");
@@ -34,48 +35,35 @@ export const notifyOnNewTimelinePost = onDocumentCreated(
         .where("groupId", "==", groupId)
         .get();
 
-      const tokens: string[] = [];
+      const notifications: Promise<void>[] = [];
+
       usersSnapshot.forEach((doc) => {
+        const targetUserId = doc.id;
+        // Don't notify the author
+        if (targetUserId === userId) return;
+
         const userData = doc.data() as User;
-        // Don't notify the author and ensure token exists
-        if (doc.id !== userId && userData.fcmToken) {
-          tokens.push(userData.fcmToken);
-        }
+
+        const notificationPromise = sendAndSaveNotification({
+          targetUserId,
+          fcmToken: userData.fcmToken,
+          type: "QUEST_POSTED",
+          title: "グループに新しい投稿がありました！",
+          body: `${author.displayName}さんが新しく投稿しました。`,
+          senderId: userId,
+          targetId: postId,
+        });
+
+        notifications.push(notificationPromise);
       });
 
-      if (tokens.length === 0) {
-        logger.info(`No other users with FCM tokens in group ${groupId}.`);
+      if (notifications.length === 0) {
+        logger.info(`No other users in group ${groupId}.`);
         return;
       }
 
-      const message: admin.messaging.MulticastMessage = {
-        tokens: tokens,
-        notification: {
-          title: "グループに新しい投稿がありました！",
-          body: `${author.displayName}さんが新しく投稿しました。`,
-        },
-      };
-
-      const response = await messaging.sendEachForMulticast(message);
-      logger.info(
-        `Sent ${response.successCount} notifications for group ${groupId}.`
-      );
-      if (response.failureCount > 0) {
-        logger.warn(
-          `Failed to send ${response.failureCount} notifications for group ${groupId}.`
-        );
-        const failed = response.responses
-          .map((resp, index) => ({ resp, index }))
-          .filter(({ resp }) => !resp.success);
-        failed.forEach(({ resp, index }) => {
-          const token = tokens[index];
-          const errorCode = resp.error?.code ?? "unknown";
-          const errorMessage = resp.error?.message ?? "No error message provided";
-          logger.warn(
-            `Notification to token ${token} failed with error ${errorCode}: ${errorMessage}`
-          );
-        });
-      }
+      await Promise.all(notifications);
+      logger.info(`QUEST_POSTED notifications sent for group ${groupId}.`);
     } catch (error) {
       logger.error(`Error sending timeline notification for groupId ${groupId}:`, error);
     }
