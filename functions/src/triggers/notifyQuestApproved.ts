@@ -29,8 +29,8 @@ export const notifyQuestApproved = onDocumentUpdated(
 
       // 誰が承認したか（votesを見て、直近で"APPROVE"にしたユーザーを探す）
       let approverId: string | undefined;
-      const beforeVotes = before.votes || {};
-      const afterVotes = after.votes || {};
+      const beforeVotes: Record<string, string | undefined> = before.votes || {};
+      const afterVotes: Record<string, string | undefined> = after.votes || {};
 
       for (const [uid, vote] of Object.entries(afterVotes)) {
         if (vote === "APPROVE" && beforeVotes[uid] !== "APPROVE") {
