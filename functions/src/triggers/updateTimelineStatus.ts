@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
-import { Timeline, Quest, User } from "../common/types";
+import { Timeline, Group, User } from "../common/types";
 import { sendAndSaveNotification } from "../common/sendAndSaveNotification";
 
 const db = admin.firestore();
@@ -61,29 +61,44 @@ export const updateTimelineStatus = onDocumentUpdated(
       (v) => v === "REJECT"
     ).length;
 
-    // Fetch the quest to determine the approval threshold (default: 1)
-    let threshold = 1;
+    // Fetch the group to determine member count for majority calculation.
+    // If the group cannot be fetched, abort status determination.
+    let memberCount: number | null = null;
     try {
-      const questDoc = await db.collection("quests").doc(after.questId).get();
-      if (questDoc.exists) {
-        const questData = questDoc.data() as Quest;
-        if (questData.threshold != null) {
-          threshold = questData.threshold;
+      const groupDoc = await db.collection("groups").doc(after.groupId).get();
+      if (groupDoc.exists) {
+        const groupData = groupDoc.data() as Group;
+        if (groupData.memberIds?.length) {
+          memberCount = groupData.memberIds.length;
         }
       }
     } catch (error) {
       logger.error(
-        `Failed to fetch quest ${after.questId} for post ${postId}:`,
+        `Failed to fetch group ${after.groupId} for post ${postId}:`,
         error
       );
     }
 
-    // Determine new status
+    if (memberCount === null) {
+      logger.warn(
+        `Group ${after.groupId} not found or has no members, ` +
+          `skipping status update for post ${postId}.`
+      );
+      return;
+    }
+
+    // Determine new status based on majority of group members:
+    // - APPROVE  : approvalCount strictly exceeds half the member count
+    // - REJECT   : rejectCount strictly exceeds half the member count
+    // - PENDING  : neither side has reached majority (includes ties and
+    //              cases where both counts are below the majority threshold)
     let newStatus: "PENDING" | "APPROVE" | "REJECT" = "PENDING";
-    if (approvalCount >= threshold) {
-      newStatus = "APPROVE";
-    } else if (rejectCount >= threshold) {
-      newStatus = "REJECT";
+    if (approvalCount !== rejectCount) {
+      if (approvalCount > memberCount / 2) {
+        newStatus = "APPROVE";
+      } else if (rejectCount > memberCount / 2) {
+        newStatus = "REJECT";
+      }
     }
 
     // Guard: skip write when nothing would change
