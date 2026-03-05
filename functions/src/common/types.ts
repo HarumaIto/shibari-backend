@@ -62,3 +62,7 @@ export interface AppNotification {
   isRead: boolean; // 初期値は false
   createdAt: admin.firestore.FieldValue; // サーバータイムスタンプ
 }
+
+export interface Group {
+  memberIds: string[];
+}

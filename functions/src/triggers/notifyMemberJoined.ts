@@ -1,15 +1,10 @@
 import * as admin from "firebase-admin";
 import { onDocumentUpdated } from "firebase-functions/v2/firestore";
 import * as logger from "firebase-functions/logger";
-import { User } from "../common/types";
+import { User, Group } from "../common/types";
 import { sendAndSaveNotification } from "../common/sendAndSaveNotification";
 
 const db = admin.firestore();
-
-interface Group {
-  memberIds: string[]; // array of user IDs
-  [key: string]: unknown;
-}
 
 /**
  * Triggered when a group document is updated.
