@@ -14,7 +14,7 @@ export const notifyOnNewTimelinePost = onDocumentCreated(
   "timelines/{postId}",
   async (event) => {
     const timelineData = event.data?.data() as Timeline | undefined;
-    const postId = event.params.postId;
+    const postId = event.data?.id;
 
     if (!timelineData) {
       logger.info("Timeline data is missing, exiting.");
