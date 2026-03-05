@@ -8,7 +8,7 @@ const db = admin.firestore();
 
 /**
  * Triggered when a timeline document is updated.
- * Checks if the post's status changed to 'APPROVED'.
+ * Checks if the post's status changed to 'APPROVE'.
  * Sends a QUEST_APPROVED notification to the author.
  */
 export const notifyQuestApproved = onDocumentUpdated(
@@ -23,17 +23,17 @@ export const notifyQuestApproved = onDocumentUpdated(
       return;
     }
 
-    // Check if status changed from something else to 'APPROVED'
-    if (after.status === "APPROVED" && before.status !== "APPROVED") {
+    // Check if status changed from something else to 'APPROVE'
+    if (after.status === "APPROVE" && before.status !== "APPROVE") {
       const targetUserId = after.userId; // The original author of the post
 
-      // 誰が承認したか（votesを見て、直近で"APPROVED"にしたユーザーを探す）
+      // 誰が承認したか（votesを見て、直近で"APPROVE"にしたユーザーを探す）
       let approverId: string | undefined;
       const beforeVotes = before.votes || {};
       const afterVotes = after.votes || {};
 
       for (const [uid, vote] of Object.entries(afterVotes)) {
-        if (vote === "APPROVED" && beforeVotes[uid] !== "APPROVED") {
+        if (vote === "APPROVE" && beforeVotes[uid] !== "APPROVE") {
           approverId = uid;
           break; // 最初に見つかった承認者を対象とする
         }

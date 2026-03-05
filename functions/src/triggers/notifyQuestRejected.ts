@@ -8,7 +8,7 @@ const db = admin.firestore();
 
 /**
  * Triggered when a timeline document is updated.
- * Checks if the post's status changed to 'REJECTED'.
+ * Checks if the post's status changed to 'REJECT'.
  * Sends a QUEST_REJECTED notification to the author.
  */
 export const notifyQuestRejected = onDocumentUpdated(
@@ -23,17 +23,17 @@ export const notifyQuestRejected = onDocumentUpdated(
       return;
     }
 
-    // Check if status changed from something else to 'REJECTED'
-    if (after.status === "REJECTED" && before.status !== "REJECTED") {
+    // Check if status changed from something else to 'REJECT'
+    if (after.status === "REJECT" && before.status !== "REJECT") {
       const targetUserId = after.userId; // The original author of the post
 
-      // 誰が却下したか（votesを見て、直近で"REJECTED"にしたユーザーを探す）
+      // 誰が却下したか（votesを見て、直近で"REJECT"にしたユーザーを探す）
       let rejectorId: string | undefined;
       const beforeVotes = before.votes || {};
       const afterVotes = after.votes || {};
 
       for (const [uid, vote] of Object.entries(afterVotes)) {
-        if (vote === "REJECTED" && beforeVotes[uid] !== "REJECTED") {
+        if (vote === "REJECT" && beforeVotes[uid] !== "REJECT") {
           rejectorId = uid;
           break; // 最初に見つかった却下者を対象とする
         }

@@ -23,8 +23,8 @@ export interface Timeline {
   mediaUrl: string;
   mediaType: string;
   comment: string;
-  status?: "PENDING" | "APPROVED" | "REJECTED";
-  votes?: Record<string, "APPROVED" | "REJECTED">; // key: uid, value: status
+  status?: "PENDING" | "APPROVE" | "REJECT";
+  votes?: Record<string, "APPROVE" | "REJECT">; // key: uid, value: status
   createdAt: admin.firestore.Timestamp;
 }
 
