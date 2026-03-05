@@ -1,7 +1,7 @@
 import * as admin from "firebase-admin";
 import { onSchedule } from "firebase-functions/v2/scheduler";
 import * as logger from "firebase-functions/logger";
-import { Timeline, Quest } from "../common/types";
+import { Timeline, Quest, User } from "../common/types";
 import { getJstNow } from "../common/getJstNow";
 import { getTargetFrequency } from "../common/getTargetFrequency";
 import { getStartOfWeek } from "../common/getStartOfWeek";
@@ -65,7 +65,7 @@ export const dailyReminder = onSchedule(
       const fcmTokensToNotify: string[] = [];
 
       for await (const userDoc of usersStream) {
-        const user = userDoc.data();
+        const user = userDoc.data() as User;
         if (!user.participatingQuestIds || user.participatingQuestIds.length === 0) continue;
 
         let shouldNotify = false;
@@ -78,7 +78,7 @@ export const dailyReminder = onSchedule(
           if (!freq || !targetFrequencies.includes(freq)) continue;
 
           // 期間内に該当のクエストの投稿（達成）がなければ、通知フラグを立ててループを抜ける
-          if (!completedSet.has(`${user.id}_${questId}`)) {
+          if (!completedSet.has(`${userDoc.id}_${questId}`)) {
             shouldNotify = true;
             break; // 1つでも未達成があれば通知するので、以降のチェックは不要
           }
