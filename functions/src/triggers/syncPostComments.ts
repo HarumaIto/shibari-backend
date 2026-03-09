@@ -28,7 +28,7 @@ export const syncPostComments = onDocumentWritten(
     try {
       // Fetch latest 3 comments (newest first)
       const commentsSnapshot = await db
-        .collection("timelines")
+        .collection("posts")
         .doc(postId)
         .collection("comments")
         .orderBy("createdAt", "desc")
@@ -39,7 +39,7 @@ export const syncPostComments = onDocumentWritten(
       const latestComments = commentsSnapshot.docs
         .map((doc) => {
           const data = doc.data();
-          const authorName = data.author.displayName ?? data.userId;
+          const authorName = data.authorName ?? "不明";
           const text = data.text ?? "";
           return `${authorName}: ${text}`;
         })
@@ -56,7 +56,7 @@ export const syncPostComments = onDocumentWritten(
 
       // Update the parent post document
       // Use set with merge: true to avoid errors if the parent document somehow doesn't exist
-      await db.collection("timelines").doc(postId).set(updateData, { merge: true });
+      await db.collection("posts").doc(postId).set(updateData, { merge: true });
 
       logger.info(`Successfully synced comment data for post ${postId}`);
     } catch (error) {
