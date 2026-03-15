@@ -32,10 +32,12 @@ jobs:
       - name: Build TypeScript
         run: npm run build
 
+
       - name: Deploy to Firebase Functions
         uses: w9jds/firebase-action@v15.8.0
         with: 
           args: deploy --only functions --project ${{ secrets.FIREBASE_PROJECT_ID }}
+          cwd: functions
         env: 
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
 
