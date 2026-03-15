@@ -32,7 +32,7 @@ function votesChanged(
  * Also sends QUEST_APPROVED / QUEST_REJECTED push notifications when the
  * status transitions for the first time.
  */
-export const updateTimelineStatus = onDocumentUpdated(
+export const syncTimelineStatus = onDocumentUpdated(
   "timelines/{postId}",
   async (event) => {
     const before = event.data?.before.data() as Timeline | undefined;
