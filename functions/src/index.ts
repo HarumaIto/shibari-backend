@@ -11,7 +11,7 @@ import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
 import { updateTimelineStatus } from "./triggers/updateTimelineStatus";
 import { markNotificationAsRead } from "./callable/markNotificationAsRead";
 import { syncPostComments } from "./triggers/syncPostComments";
-import { syncTimelineStatus } from "./triggers/syncTimelineStatus.ts"
+import { syncTimelineStatus } from "./triggers/syncTimelineStatus.ts";
 
 export {
   syncUserProfile,
