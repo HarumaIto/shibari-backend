@@ -15,11 +15,23 @@ export interface Author {
   photoUrl: string;
 }
 
+export interface QuestEmbed {
+  title: string;
+  type: string;
+}
+
+export interface AiJudgment {
+  result: "APPROVE" | "REJECT" | "UNKNOWN";
+  reason: string;
+  judgedAt: admin.firestore.Timestamp;
+}
+
 export interface Timeline {
   userId: string;
   questId: string;
   groupId: string;
   author: Author;
+  quest?: QuestEmbed;
   mediaUrl: string;
   mediaType: string;
   comment: string;
@@ -27,6 +39,7 @@ export interface Timeline {
   approvalCount?: number;
   rejectCount?: number;
   votes?: Record<string, "APPROVE" | "REJECT">; // key: uid, value: status
+  aiJudgment?: AiJudgment;
   createdAt: admin.firestore.Timestamp;
 }
 
