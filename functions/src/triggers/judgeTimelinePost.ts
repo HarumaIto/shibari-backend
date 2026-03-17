@@ -9,12 +9,12 @@ const db = admin.firestore();
 
 const ai = genkit({ plugins: [googleAI()] });
 
-const JUDGEABLE_QUEST_TYPES = ["PROHIBITION", "CHALLENGE"];
+const JUDGEABLE_QUEST_TYPES = ["PROHIBITION", "CHALLENGE", "ROUTINE"];
 const MAX_FALLBACK_REASON_LENGTH = 200;
 
 /**
  * Builds a prompt for the AI to judge whether the image satisfies the quest.
- * @param {string} questType - The type of the quest (PROHIBITION or CHALLENGE).
+ * @param {string} questType - The type of the quest (PROHIBITION, CHALLENGE, or ROUTINE).
  * @param {string} questTitle - The title of the quest.
  * @param {string} questDescription - The description / conditions of the quest.
  * @return {string} The prompt string.
@@ -32,6 +32,20 @@ function buildPrompt(
       `禁止条件: ${questDescription}\n\n` +
       "画像を確認し、禁止条件が守られている場合は \"APPROVE\"、" +
       "守られていない場合は \"REJECT\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
+      "また、判定理由を1〜2文で説明してください。\n" +
+      "必ず以下のJSON形式のみで返答してください（他のテキストは不要）:\n" +
+      "{\"result\":\"APPROVE\"|\"REJECT\"|\"UNKNOWN\",\"reason\":\"理由\"}"
+    );
+  }
+  if (questType === "ROUTINE") {
+    return (
+      "あなたは行動監視AIです。以下のルーティーンクエストの内容を読み、添付された画像が" +
+      "そのルーティーンを実施した証拠になっているかどうかを判定してください。\n\n" +
+      `クエスト名: ${questTitle}\n` +
+      `ルーティーン内容: ${questDescription}\n\n` +
+      "歩数計のスクリーンショット・アプリの完了画面・実施状況を示す写真など、" +
+      "ルーティーンを行った事実が確認できる画像であれば \"APPROVE\"、" +
+      "確認できない場合は \"REJECT\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
       "また、判定理由を1〜2文で説明してください。\n" +
       "必ず以下のJSON形式のみで返答してください（他のテキストは不要）:\n" +
       "{\"result\":\"APPROVE\"|\"REJECT\"|\"UNKNOWN\",\"reason\":\"理由\"}"
@@ -82,7 +96,7 @@ function parseAiResponse(text: string): {
 
 /**
  * Triggered when a new timeline post is created.
- * For PROHIBITION and CHALLENGE quests with image media, calls Gemini via
+ * For PROHIBITION, CHALLENGE, and ROUTINE quests with image media, calls Gemini via
  * GenKit to judge whether the image satisfies the quest conditions, and writes
  * the result back to the timeline document as `aiJudgment`.
  */
