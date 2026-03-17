@@ -30,11 +30,11 @@ function buildPrompt(
       "その禁止事項を守れているかどうかを判定してください。\n\n" +
       `クエスト名: ${questTitle}\n` +
       `禁止条件: ${questDescription}\n\n` +
-      "画像を確認し、禁止条件が守られている場合は \"PASS\"、" +
-      "守られていない場合は \"FAIL\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
+      "画像を確認し、禁止条件が守られている場合は \"APPROVE\"、" +
+      "守られていない場合は \"REJECT\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
       "また、判定理由を1〜2文で説明してください。\n" +
       "必ず以下のJSON形式のみで返答してください（他のテキストは不要）:\n" +
-      "{\"result\":\"PASS\"|\"FAIL\"|\"UNKNOWN\",\"reason\":\"理由\"}"
+      "{\"result\":\"APPROVE\"|\"REJECT\"|\"UNKNOWN\",\"reason\":\"理由\"}"
     );
   }
   // CHALLENGE
@@ -43,11 +43,11 @@ function buildPrompt(
     "そのクエストを達成している証拠になっているかどうかを判定してください。\n\n" +
     `クエスト名: ${questTitle}\n` +
     `達成条件: ${questDescription}\n\n` +
-    "画像を確認し、クエストを達成していると判断できる場合は \"PASS\"、" +
-    "達成していない場合は \"FAIL\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
+    "画像を確認し、クエストを達成していると判断できる場合は \"APPROVE\"、" +
+    "達成していない場合は \"REJECT\"、判断できない場合は \"UNKNOWN\" と回答してください。" +
     "また、判定理由を1〜2文で説明してください。\n" +
     "必ず以下のJSON形式のみで返答してください（他のテキストは不要）:\n" +
-    "{\"result\":\"PASS\"|\"FAIL\"|\"UNKNOWN\",\"reason\":\"理由\"}"
+    "{\"result\":\"APPROVE\"|\"REJECT\"|\"UNKNOWN\",\"reason\":\"理由\"}"
   );
 }
 
@@ -58,7 +58,7 @@ function buildPrompt(
  * @return {Object} Parsed judgment with result and reason fields.
  */
 function parseAiResponse(text: string): {
-  result: "PASS" | "FAIL" | "UNKNOWN";
+  result: "APPROVE" | "REJECT" | "UNKNOWN";
   reason: string;
 } {
   try {
@@ -70,7 +70,7 @@ function parseAiResponse(text: string): {
       reason: string;
     };
     const result =
-      parsed.result === "PASS" || parsed.result === "FAIL" ?
+      parsed.result === "APPROVE" || parsed.result === "REJECT" ?
         parsed.result :
         "UNKNOWN";
     return { result, reason: String(parsed.reason ?? "") };
@@ -145,7 +145,7 @@ export const judgeTimelinePost = onDocumentCreated(
 
     const prompt = buildPrompt(questType, questTitle, questDescription);
 
-    let aiResult: "PASS" | "FAIL" | "UNKNOWN" = "UNKNOWN";
+    let aiResult: "APPROVE" | "REJECT" | "UNKNOWN" = "UNKNOWN";
     let aiReason = "";
 
     try {

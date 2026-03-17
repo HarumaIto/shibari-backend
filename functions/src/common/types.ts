@@ -21,7 +21,7 @@ export interface QuestEmbed {
 }
 
 export interface AiJudgment {
-  result: "PASS" | "FAIL" | "UNKNOWN";
+  result: "APPROVE" | "REJECT" | "UNKNOWN";
   reason: string;
   judgedAt: admin.firestore.Timestamp;
 }
