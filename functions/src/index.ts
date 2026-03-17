@@ -11,6 +11,7 @@ import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
 import { markNotificationAsRead } from "./callable/markNotificationAsRead";
 import { syncPostComments } from "./triggers/syncPostComments";
 import { syncTimelineStatus } from "./triggers/syncTimelineStatus";
+import { judgeTimelinePost } from "./triggers/judgeTimelinePost";
 
 export {
   syncUserProfile,
@@ -22,4 +23,5 @@ export {
   markNotificationAsRead,
   syncPostComments,
   syncTimelineStatus,
+  judgeTimelinePost,
 };
