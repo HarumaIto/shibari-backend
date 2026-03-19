@@ -9,7 +9,7 @@ const db = admin.firestore();
  * Syncs the comment count and the latest 3 comments to the parent post document.
  */
 export const syncPostComments = onDocumentWritten(
-  "posts/{postId}/comments/{commentId}",
+  "timelines/{postId}/comments/{commentId}",
   async (event) => {
     const postId = event.params.postId;
     const beforeExists = event.data?.before?.exists;
