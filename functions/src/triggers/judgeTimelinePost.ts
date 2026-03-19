@@ -114,7 +114,7 @@ export const judgeTimelinePost = onDocumentCreated(
     const { questId, mediaType, mediaUrl } = timelineData;
 
     // Only process image media (skip videos)
-    if (!mediaType.startsWith("image/")) {
+    if (!mediaType.startsWith("image")) {
       logger.info(
         `Post ${postId} has mediaType "${mediaType}", skipping AI judgment.`
       );
