@@ -8,7 +8,6 @@ import { notifyOnNewComment } from "./triggers/notifyOnNewComment";
 import { dailyReminder } from "./triggers/dailyReminder";
 import { notifyOnNewTimelinePost } from "./triggers/notifyOnNewTimelinePost";
 import { notifyMemberJoined } from "./triggers/notifyMemberJoined";
-import { markNotificationAsRead } from "./callable/markNotificationAsRead";
 import { syncPostComments } from "./triggers/syncPostComments";
 import { syncTimelineStatus } from "./triggers/syncTimelineStatus";
 import { judgeTimelinePost } from "./triggers/judgeTimelinePost";
@@ -21,7 +20,6 @@ export {
   dailyReminder,
   notifyOnNewTimelinePost,
   notifyMemberJoined,
-  markNotificationAsRead,
   syncPostComments,
   syncTimelineStatus,
   judgeTimelinePost,
