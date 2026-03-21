@@ -167,7 +167,7 @@ export async function judgeTimelinePostLogic(
 
   try {
     const { text } = await ai.generate({
-      model: "googleai/gemini-3-flash-preview",
+      model: "googleai/gemini-3-flash",
       prompt: [
         { text: prompt },
         { media: { url: mediaUrl, contentType: "image/jpeg" } },
