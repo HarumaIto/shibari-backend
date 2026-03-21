@@ -18,6 +18,7 @@ const MAX_FALLBACK_REASON_LENGTH = 200;
  * @param {string} questType - The type of the quest (PROHIBITION, CHALLENGE, or ROUTINE).
  * @param {string} questTitle - The title of the quest.
  * @param {string} questDescription - The description / conditions of the quest.
+ * @param {string} comment - The comment of timeline post.
  * @return {string} The prompt string.
  */
 function buildPrompt(
@@ -166,7 +167,7 @@ export async function judgeTimelinePostLogic(
 
   try {
     const { text } = await ai.generate({
-      model: 'googleai/gemini-3-flash-preview',
+      model: "googleai/gemini-3-flash-preview",
       prompt: [
         { text: prompt },
         { media: { url: mediaUrl, contentType: "image/jpeg" } },
@@ -189,7 +190,7 @@ export async function judgeTimelinePostLogic(
   const aiJudgment: AiJudgment = {
     result: aiResult,
     reason: aiReason,
-    judgedAt: Timestamp.now(), 
+    judgedAt: Timestamp.now(),
   };
 
   try {
