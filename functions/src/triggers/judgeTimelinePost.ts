@@ -214,7 +214,7 @@ export async function judgeTimelinePostLogic(
 export const judgeTimelinePost = onDocumentCreated(
   {
     document: "timelines/{postId}",
-    secrets: ["GENAI_API_KEY"]
+    secrets: ["GENAI_API_KEY"],
   },
   async (event) => {
     const timelineData = event.data?.data() as Timeline | undefined;
