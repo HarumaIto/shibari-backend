@@ -53,7 +53,7 @@ export const markNotificationAsRead = onCall(async (request) => {
     logger.error("Error marking notification as read:", error);
     throw new HttpsError(
       "internal",
-      "An error occurred while updating the notification."
+      `An error occurred while updating the notification: ${error}`
     );
   }
 });
